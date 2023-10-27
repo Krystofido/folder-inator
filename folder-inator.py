@@ -31,38 +31,25 @@ stop_at = None
 # enter a certain pattern and look after it
 
 
-    # run this version loop if you want to ignore single files
-    #file_count = len(glob.glob1(path, f"{file_base_name}*"))
-    #if file_count > 1 or Path(file_base_name).is_dir(): 
-    #    outdir = Path(path) / file_base_name
-    #    outdir.mkdir(exist_ok=True)
-    #    zuio = outdir / fn.name
-    #    fn.rename(outdir / fn.name)
-
 def main():
     for file in Path(path).glob("*"):
 
-        if os.path.isdir(file):
-            #test = file.stem
-            #if "." in test:
-            #    print("contains .")
-            #print("isdir")
+        # Skipping folders if ignore_folders == true
+        if ignore_folders and os.path.isdir(file):
             continue
 
         delimeter_separated = file.stem.split("_")
 
-        almost = "_".join(delimeter_separated[0:2]) # filename without last part for the folder to be named after
+        file_base_name = "_".join(delimeter_separated[0:2]) # filename without last part for the folder to be named after
+        # Folder names can't end with dots (.) and are automatically removed by the OS. Thus if the file_base_name ends with dots they need to be stripped
+        file_base_name = file_base_name.rstrip(".")
 
-        file_base_name = delimeter_separated[0] # pattern to be sorted after
+        # # Skipping folders if ignore_singles == true
+        if ignore_singles and check_amount_files(file_base_name) < 2:
+            print("skipping")
+            continue
 
-        #asdf = file.stem.split("_")[:1]
-        #asdfg = file.stem.split("_")
-        #qwer = "_".join(asdf)
-        #qwert = "AAA".join(asdf)
-        #yxcv = file.stem
-        #what = glob.glob1(path, f"{file_base_name}*")
-
-        outdir = Path(path) / almost
+        outdir = Path(path) / file_base_name
         outdir.mkdir(exist_ok=True)
 
         #asdf = outdir / file.name
@@ -70,20 +57,20 @@ def main():
         #    continue
         try:
             target = outdir / file.name
-            if len(str(target)) < 260:
-                print(len(str(target)))
-                print(((target)))
-
-            #print(type(target))
-            #file.replace(target)
+            #if len(str(target)) < 260:
+            #    print(len(str(target)))
+            #    print(((target)))
             shutil.move(file, target)
         except Exception as e:
-            #print(e)
-            #print("some problem")
-            continue;
+            continue
     
     print("Done")
 
+# Checks amount of files with given pattern
+def check_amount_files(file_base_name):
+    file_count = len(glob.glob1(path, f"{file_base_name}*"))
+    return file_count
 
 if __name__ == '__main__':
     main()
+
