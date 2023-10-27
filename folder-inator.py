@@ -7,13 +7,12 @@ path = r"D:\0"
 
 delimeter = "_"
 ignore_folders = True # if not ignore folders I'd need to implement many failsafes
-ignore_singles = True # do not put single files 
+ignore_singles = False # do not put single files 
 
 # Amount of delimeter-steps, go_until excludes the other two
 go_until = None
 start_at = None
 stop_at = None
-
 
 
 # illegal folder charachters: * " / \ < > : | ?
@@ -52,16 +51,19 @@ def main():
         outdir = Path(path) / file_base_name
         outdir.mkdir(exist_ok=True)
 
-        #asdf = outdir / file.name
-        #if asdf.is_file():
-        #    continue
+        target = outdir / file.name
+        # The shutil.move() method (or any other file moving function in Python known to me) can't have a target-path () longer than 259 characters.
+        # If I understand correctly, it's because of OS restrictions.
+        # Note that you can still move the file manually to paths longer than 259 characters.
+        if len(str(target)) > 259:
+            print(f"The target path:\n{target}\nis too long (has {len(str(target))} characters, only up to 259 possible).\
+                   \nPlease choose a shorter file_base_name, move your files to a lower/shorter directory or move them manually.\n")
+            continue
+
         try:
-            target = outdir / file.name
-            #if len(str(target)) < 260:
-            #    print(len(str(target)))
-            #    print(((target)))
             shutil.move(file, target)
         except Exception as e:
+            print(e)
             continue
     
     print("Done")
