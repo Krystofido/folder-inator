@@ -3,16 +3,7 @@ from pathlib import Path
 import os.path
 import shutil
 
-path = r"D:\0"
-
-delimeter = "_"
-ignore_folders = True # if not ignore folders I'd need to implement many failsafes
-ignore_singles = False # do not put single files 
-
-# Amount of delimeter-steps, go_until excludes the other two
-go_until = None
-start_at = None
-stop_at = None
+import arguments as args
 
 
 # illegal folder charachters: * " / \ < > : | ?
@@ -31,10 +22,12 @@ stop_at = None
 
 
 def main():
-    for file in Path(path).glob("*"):
+    arg = args.get_arguments()
+
+    for file in Path(arg.path).glob("*"):
 
         # Skipping folders if ignore_folders == true
-        if ignore_folders and os.path.isdir(file):
+        if arg.ignore_folders and os.path.isdir(file):
             continue
 
         delimeter_separated = file.stem.split("_")
@@ -44,11 +37,11 @@ def main():
         file_base_name = file_base_name.rstrip(".")
 
         # # Skipping folders if ignore_singles == true
-        if ignore_singles and check_amount_files(file_base_name) < 2:
+        if arg.ignore_singles and check_amount_files(file_base_name) < 2:
             print("skipping")
             continue
 
-        outdir = Path(path) / file_base_name
+        outdir = Path(arg.path) / file_base_name
         outdir.mkdir(exist_ok=True)
 
         target = outdir / file.name
@@ -70,7 +63,7 @@ def main():
 
 # Checks amount of files with given pattern
 def check_amount_files(file_base_name):
-    file_count = len(glob.glob1(path, f"{file_base_name}*"))
+    file_count = len(glob.glob1(arg.path, f"{file_base_name}*"))
     return file_count
 
 if __name__ == '__main__':
