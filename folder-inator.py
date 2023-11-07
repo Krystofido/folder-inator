@@ -29,13 +29,17 @@ def main():
     for file in Path(arg.path).glob("*"):
 
         # Skipping folders if ignore_folders == true
-        if arg.ignore_folders and os.path.isdir(file):
-            continue
-
+        #if arg.ignore_folders and os.path.isdir(file):
+        #    continue
 
         delimeter_separated = file.stem.split(arg.delimeter)
 
-        file_base_name = "_".join(delimeter_separated[0:2]) # filename without last part for the folder to be named after
+        # Depending on the choice of either --occurence_at or the two arguments --start_at and/or --end_at, different naming process.
+        if(arg.occurence_at is not None):
+            file_base_name = delimeter_separated[arg.occurence_at]
+        else:
+            file_base_name = "_".join(delimeter_separated[arg.start_at:arg.end_at]) # filename without last part for the folder to be named after
+
         # Folder names can't end with dots (.) and are automatically removed by the OS. Thus if the file_base_name ends with dots they need to be stripped
         file_base_name = file_base_name.rstrip(".")
 
