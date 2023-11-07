@@ -19,6 +19,8 @@ import arguments as args
 # gui
 # add tqdm for more visual progress
 # enter a certain pattern and look after it
+# save the ran configuration
+# suport regex?
 
 
 def main():
@@ -30,14 +32,15 @@ def main():
         if arg.ignore_folders and os.path.isdir(file):
             continue
 
-        delimeter_separated = file.stem.split("_")
+
+        delimeter_separated = file.stem.split(arg.delimeter)
 
         file_base_name = "_".join(delimeter_separated[0:2]) # filename without last part for the folder to be named after
         # Folder names can't end with dots (.) and are automatically removed by the OS. Thus if the file_base_name ends with dots they need to be stripped
         file_base_name = file_base_name.rstrip(".")
 
         # # Skipping folders if ignore_singles == true
-        if arg.ignore_singles and check_amount_files(file_base_name) < 2:
+        if arg.ignore_singles and check_amount_files(arg.path, file_base_name) < 2:
             print("skipping")
             continue
 
@@ -62,8 +65,8 @@ def main():
     print("Done")
 
 # Checks amount of files with given pattern
-def check_amount_files(file_base_name):
-    file_count = len(glob.glob1(arg.path, f"{file_base_name}*"))
+def check_amount_files(basepath, file_base_name):
+    file_count = len(glob.glob1(basepath, f"{file_base_name}*"))
     return file_count
 
 if __name__ == '__main__':
