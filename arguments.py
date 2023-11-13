@@ -31,8 +31,8 @@ def get_arguments():
                                     \nIgnores certain arguments even if given: --occurence_at, --start_at, end_at, --ingnore_singles')
 
     # optional arguments
-    optional.add_argument('--ignore_folders', type=bool, default=True, help='Ignores folders if set True. \nDefault value is True (it\'s safer this way).')
-    optional.add_argument('--ignore_singles', type=bool, default=False, help='Ignores single files if set True. \nNo folder will be created for it.\
+    optional.add_argument('--ignore_folders', type=str_to_bool, default=True, help='Ignores folders if set True. \nDefault value is True (it\'s safer this way).')
+    optional.add_argument('--ignore_singles', type=str_to_bool, default=False, help='Ignores single files if set True. \nNo folder will be created for it.\
                          \nYou have a single file if your pattern creates a file_base_name that matches only 1 file. \nDefault value is False.')
     
     # Amount of delimeter-steps, go_until excludes the other two. Can't add to mutually exclusive groups because of too complex logic
@@ -40,7 +40,7 @@ def get_arguments():
                          the first element is at 0. \nYou can give negative numbers if you want to count backwards, -1 would be the last element.')
     requiredExcluding.add_argument('--start_at', type=int, default=None, help='Define at which split element of the name to start. \nThe same counting rules as in --occurence_at.')
     requiredExcluding.add_argument('--end_at', type=int, default=None, help='Define at which split element of the name to start. \nThe named element is not included. \nExample: If you want the first 2\
-                        elements you need to define --end_at 2.\ \nOtherwise the same counting rules as in --occurence_at.')
+                        elements you need to define --end_at 2. \nOtherwise the same counting rules as in --occurence_at.')
 
     # Parse the command-line arguments
     args = parser.parse_args()
@@ -50,9 +50,19 @@ def get_arguments():
         parser.error("Arguments --delimeter and --regex_pattern exclude each other.")
     
     if not ((args.occurence_at is not None) ^ ((args.start_at is not None) or (args.end_at is not None))):
-        parser.error("Arguments --occurence_at and (--start_at or --end_at) exclude each other.")
+        parser.error("Arguments --occurence_at and (--start_at or --end_at) exclude each other.")     
 
-    print(args)
+    #print(args)
     return args
 
-get_arguments()
+def str_to_bool(value):
+    if isinstance(value, bool):
+        return value
+    if value.lower() in ('yes', 'true', 't', 'y', '1'):
+        return True
+    elif value.lower() in ('no', 'false', 'f', 'n', '0', ''):
+        return False
+    else:
+        raise argparse.ArgumentTypeError('Invalid boolean value: {}'.format(value))
+
+#get_arguments()
