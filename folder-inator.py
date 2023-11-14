@@ -15,15 +15,21 @@ import arguments as args
 # make folders have more extensive name than pattern
 # (not necessarily absolute path)
 # gui
-# add tqdm for more visual progress
+# add tqdm (or something else) for more visual progress
 # save the ran configuration
 # print the amount of the moved files + the amount of all files at all
+# log warnings/errors into file instead of console
 
 
 def main():
     arg = args.get_arguments()
 
+    amount_total_files = 0
+    amount_moved_files = 0
+    amount_new_folders = 0
+
     for file in Path(arg.path).glob("*"):
+        amount_total_files += 1
 
         # Skipping folders if ignore_folders == true
         if arg.ignore_folders and os.path.isdir(file):
@@ -42,7 +48,13 @@ def main():
         if file == outdir:
             continue
 
+        # Create new folder if not already existing
+        folder_exists_before = os.path.exists(outdir)
         outdir.mkdir(exist_ok=True)
+        folder_exists_after = os.path.exists(outdir)
+        if not folder_exists_before and folder_exists_after:
+            amount_new_folders += 1
+
 
         target = outdir / file.name
         # The shutil.move() method (or any other file moving function in Python known to me) can't have a target-path () longer than 259 characters.
@@ -55,11 +67,13 @@ def main():
 
         try:
             shutil.move(file, target)
+            amount_moved_files += 1
         except Exception as e:
             print(e)
             continue
     
-    print("Done")
+    print(f"Done: Moved {amount_moved_files} from {amount_total_files} available \
+          file{'s' if amount_moved_files != 1 else ''} and folder{'s' if amount_moved_files != 1 else ''}. Created {amount_new_folders} new folder{'s' if amount_new_folders != 1 else ''}.")
 
 # Move every file that matches the given regex expression to the "custom_regex_pattern" folder
 def regex_pattern_variant(arg, file):

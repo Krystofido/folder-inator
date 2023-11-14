@@ -1,5 +1,5 @@
 import argparse
-import smart_formatter
+import external_code.smart_formatter as smart_formatter
 
 
 def get_arguments():
@@ -16,8 +16,8 @@ def get_arguments():
 
     required = parser.add_argument_group('required named arguments')
     requiredExcluding = parser.add_argument_group('required named arguments, excluding each other: \
-                                                  \nEITHER --delimeter OR --regex_pattern (and vice versa)\
-                                                  \nEITHER --occurence_at OR --start_at and --end_at (and vice versa)')
+                                                  \nEITHER [--delimeter] OR [--regex_pattern]\
+                                                  \nEITHER [--occurence_at] OR [--start_at and/or --end_at]')
     optional = parser.add_argument_group('optional named arguments')
 
     # Add an argument for the path
@@ -39,8 +39,9 @@ def get_arguments():
     requiredExcluding.add_argument('--occurence_at', type=int, default=None, help='Take exactly one element from the split name. \nKeep in mind that\
                          the first element is at 0. \nYou can give negative numbers if you want to count backwards, -1 would be the last element.')
     requiredExcluding.add_argument('--start_at', type=int, default=None, help='Define at which split element of the name to start. \nThe same counting rules as in --occurence_at.')
-    requiredExcluding.add_argument('--end_at', type=int, default=None, help='Define at which split element of the name to start. \nThe named element is not included. \nExample: If you want the first 2\
-                        elements you need to define --end_at 2. \nOtherwise the same counting rules as in --occurence_at.')
+    requiredExcluding.add_argument('--end_at', type=int, default=None, help='Define at which split element of the name to start. \nThe named element \
+                                   is not included. \nExample: If you want the first 2 elements you need to define --end_at 2. \nOtherwise the \
+                                   same counting rules as in --occurence_at.')
 
     # Parse the command-line arguments
     args = parser.parse_args()
@@ -49,7 +50,9 @@ def get_arguments():
     if not ((args.delimeter is not None) ^ (args.regex_pattern is not None)):
         parser.error("Arguments --delimeter and --regex_pattern exclude each other.")
     
-    if not ((args.occurence_at is not None) ^ ((args.start_at is not None) or (args.end_at is not None))):
+
+    if (args.delimeter is not None) and\
+    not ((args.occurence_at is not None) ^ ((args.start_at is not None) or (args.end_at is not None))):
         parser.error("Arguments --occurence_at and (--start_at or --end_at) exclude each other.")     
 
     #print(args)
