@@ -26,7 +26,8 @@ def get_arguments():
 
     requiredExcluding.add_argument('--delimeter', type=str, help='Specify the delimeter. \nA delimeter is the pattern at which occurence the filename will be\
                        split. \nMultiple characters as delimeter are allowed. \nExample: "_" would split the name "2000_01_02" to "2000", "01" and "02".')
-    requiredExcluding.add_argument('--regex_pattern', type=str, help='Unlike --delimeter creates only one folder called "custom_regex_pattern" and puts\
+    requiredExcluding.add_argument('--regex_pattern', type=str, help='Unlike --delimeter creates only one folder called after the passed \
+                                   --regex_pattern (minus illegal characters for folder names) and puts\
                                    every file that matches this pattern inside. It takes the file extension into consideration too.\
                                     \nIgnores certain arguments even if given: --occurence_at, --start_at, end_at, --ingnore_singles')
 

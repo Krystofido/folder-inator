@@ -77,7 +77,8 @@ def main():
 
 # Move every file that matches the given regex expression to the "custom_regex_pattern" folder
 def regex_pattern_variant(arg, file):
-    outdir = Path(arg.path) / "custom_regex_pattern"
+    clean_name = re.sub(r'[<>:"/\\|?*\x00-\x1F\x7F]', '', arg.regex_pattern) # The second half of this expression are ASCII control characters. May be overkill but safe is safe.
+    outdir = Path(arg.path) / clean_name
     regex_result = re.search(arg.regex_pattern, file.name)
 
     # Skip the file from moving if it doesn't match given regex expression
