@@ -38,7 +38,7 @@ def get_arguments():
     optional.add_argument('--save_arguments', type=str_to_bool, default=False, help='Save the command with all chosen options to a Batch script.\n\
                           If no --save_name stated, a generic name "folder-inator_script" will be used, with numbers appended if already existing. \
                           It will be saved in a folder called "saved_folder-inator_scripts" located in the same directory as folder-inator.\n\
-                          Will leave out -save_arguments to avoid creating another new script file after running the saved script.\n\
+                          Will leave out --save_arguments to avoid creating another new script file after running the saved script.\n\
                           Can differentiate between running as python program or exe program. Only tested on Windows.')
     optional.add_argument('--save_name', type=str, help="Give a custom name to the saved Batch script with your last folder-inator argument configuration.")
     
