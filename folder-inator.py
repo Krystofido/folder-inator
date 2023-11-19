@@ -7,9 +7,6 @@ import sys
 
 import arguments
 
-
-# illegal folder charachters: * " / \ < > : | ?
-
 ### Ideas
 # limit folder name length
 # make folders have more extensive name than pattern
@@ -129,6 +126,7 @@ def check_amount_files(basepath, file_base_name):
 def clean_string_for_filename(text):
     return re.sub(r'[<>:"/\\|?*\x00-\x1F\x7F]', '', text) # The second half of this expression are ASCII control characters. May be overkill but safe is safe.
 
+# Save the just ran command for reuse to a script file 
 def save_arguments(args):
     file_base_name = "folder-inator_script"
     file_extension = ".bat"
