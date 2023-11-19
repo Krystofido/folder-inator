@@ -3,42 +3,40 @@ from pathlib import Path
 import os.path
 import shutil
 import re
+import sys
 
-import arguments as args
+import arguments
 
 
 # illegal folder charachters: * " / \ < > : | ?
 
 ### Ideas
 # limit folder name length
-# dont create folder if only one pattern file
 # make folders have more extensive name than pattern
 # (not necessarily absolute path)
 # gui
 # add tqdm (or something else) for more visual progress
-# save the ran configuration
-# print the amount of the moved files + the amount of all files at all
 # log warnings/errors into file instead of console
 
 
 def main():
-    arg = args.get_arguments()
+    args = arguments.get_arguments()
 
     amount_total_files = 0
     amount_moved_files = 0
     amount_new_folders = 0
 
-    for file in Path(arg.path).glob("*"):
+    for file in Path(args.path).glob("*"):
         amount_total_files += 1
 
         # Skipping folders if ignore_folders == true
-        if arg.ignore_folders and os.path.isdir(file):
+        if args.ignore_folders and os.path.isdir(file):
             continue
 
-        if arg.delimeter is not None:
-            outdir, skip_file = delimeter_variant(arg, file)
-        elif arg.regex_pattern is not None:
-            outdir, skip_file = regex_pattern_variant(arg, file)
+        if args.delimeter is not None:
+            outdir, skip_file = delimeter_variant(args, file)
+        elif args.regex_pattern is not None:
+            outdir, skip_file = regex_pattern_variant(args, file)
 
         # Skipping if skip_file == true
         if skip_file:
@@ -54,7 +52,6 @@ def main():
         folder_exists_after = os.path.exists(outdir)
         if not folder_exists_before and folder_exists_after:
             amount_new_folders += 1
-
 
         target = outdir / file.name
         # The shutil.move() method (or any other file moving function in Python known to me) can't have a target-path () longer than 259 characters.
@@ -72,6 +69,9 @@ def main():
             print(e)
             continue
     
+    if args.save_arguments:
+        save_arguments(args)
+
     print(f"Done: Moved {amount_moved_files} from {amount_total_files} available \
           file{'s' if amount_moved_files != 1 else ''} and folder{'s' if amount_moved_files != 1 else ''}. Created {amount_new_folders} new folder{'s' if amount_new_folders != 1 else ''}.")
 
@@ -124,6 +124,49 @@ def delimeter_variant(arg, file):
 def check_amount_files(basepath, file_base_name):
     file_count = len(glob.glob1(basepath, f"{file_base_name}*"))
     return file_count
+
+# Remove any characters that would be illegal for a folder- or filename
+def clean_string_for_filename(text):
+    return re.sub(r'[<>:"/\\|?*\x00-\x1F\x7F]', '', text) # The second half of this expression are ASCII control characters. May be overkill but safe is safe.
+
+def save_arguments(args):
+    file_base_name = "folder-inator_script"
+    file_extension = ".bat"
+
+    if args.save_name is not None and len(args.save_name) > 0:
+        file_base_name = args.save_name
+        
+    file_name = file_base_name + file_extension
+    file_name = clean_string_for_filename(file_name)
+
+    directory = Path("saved_folder-inator_scripts")
+    directory.mkdir(exist_ok=True)
+    file_path = directory/file_name
+
+    # In case such file exists already, find a name-number combination, that does not exist yet
+    counter = 1
+    while os.path.exists(file_path):
+        file_path = directory / (file_base_name + f"({counter})" + file_extension)
+        counter += 1
+        
+    # check if program is ran as .exe or .py
+    if getattr(sys, 'frozen', False):
+        command_prefix = sys.executable
+    else:
+        command_prefix = "python " + os.path.abspath(__file__)
+
+    # Write everything in a file
+    with open(file_path, 'w') as file:
+        file.write(f'{command_prefix}')
+
+        # Loop through the arguments and add them to the script
+        for arg in vars(args):
+            value = getattr(args, arg)
+            if value:
+                # Leave out --save_arguments as this would cause creating the same file over and over again
+                if arg == "save_arguments":
+                    continue
+                file.write(f' --{arg} {value}')
 
 if __name__ == '__main__':
     main()
