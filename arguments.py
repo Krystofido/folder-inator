@@ -1,6 +1,8 @@
 import argparse
 import external_code.smart_formatter as smart_formatter
 from datetime import datetime
+import os
+import sys
 
 # Get the current date and time
 current_time = datetime.now()
@@ -60,6 +62,14 @@ def get_arguments():
 
     # Parse the command-line arguments
     args = parser.parse_args()
+
+    # Check if the given path exists
+    try:
+        if not os.path.exists(args.path):
+            raise Exception(f"The given path does not exist, please make sure it's correct. Your path: \n{args.path}")
+    except Exception as e:
+        print(f"Error: {e}")
+        sys.exit(1)
     
     # Check if passed argument combination is legal
     if not ((args.delimeter is not None) ^ (args.regex_pattern is not None)):

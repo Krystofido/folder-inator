@@ -23,14 +23,6 @@ def main():
     amount_moved_files = 0
     amount_new_folders = 0
 
-    # Check if the given path exists
-    try:
-        if not os.path.exists(args.path):
-            raise Exception(f"The given path does not exist, please make sure it's correct. Your path: \n{args.path}")
-    except Exception as e:
-        print(f"Error: {e}")
-        return
-
     for file in Path(args.path).glob("*"):
         amount_total_files += 1
 
