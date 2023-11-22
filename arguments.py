@@ -1,6 +1,14 @@
 import argparse
 import external_code.smart_formatter as smart_formatter
+from datetime import datetime
 
+# Get the current date and time
+current_time = datetime.now()
+
+# Extract the year, month, and day
+year = current_time.year
+month = current_time.month
+day = current_time.day
 
 def get_arguments():
     # Create an ArgumentParser object
@@ -24,8 +32,8 @@ def get_arguments():
     #those actually should be changed from default to required, but for testing this is fine
     required.add_argument('--path', type=str, required=True, help='Specify the path where the files are.')
 
-    requiredExcluding.add_argument('--delimeter', type=str, help='Specify the delimeter. \nA delimeter is the pattern at which occurence the filename will be\
-                       split. \nMultiple characters as delimeter are allowed. \nExample: "_" would split the name "2000_01_02" to "2000", "01" and "02".')
+    requiredExcluding.add_argument('--delimeter', type=str, help=f'Specify the delimeter. \nA delimeter is the pattern at which occurence the filename will be\
+                       split. \nMultiple characters as delimeter are allowed. \nExample: "_" would split the name "{year}_{month}_{day}" to "{year}", "{month}" and "{day}".')
     requiredExcluding.add_argument('--regex_pattern', type=str, help='Unlike --delimeter creates only one folder called after the passed \
                                    --regex_pattern (minus illegal characters for folder names) and puts\
                                    every file that matches this pattern inside. It takes the file extension into consideration too.\
