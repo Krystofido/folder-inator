@@ -89,7 +89,13 @@ def regex_pattern_variant(arg, file):
 # and move every file matching this pattern into this folder
 def delimeter_variant(arg, file):
     skip_file = False
-    delimeter_separated = file.stem.split(arg.delimeter)
+    delimeter_separated = ""
+    # Special case if delimeter is specified as empty string, else use split()
+    if arg.delimeter == "":
+        delimeter_separated = list(str(file.stem))
+    else:
+        delimeter_separated = file.stem.split(arg.delimeter)
+    print(delimeter_separated)
 
     # Depending on the choice of either --occurence_at or the two arguments --start_at and/or --end_at, different naming process.
     file_base_name = None
