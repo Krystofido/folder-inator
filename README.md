@@ -1,5 +1,5 @@
 # folder-inator
-Program to put files with defined delimeter or pattern to the same folder.
+Program to automatically sort files into folders according to an unser-defined delimeter or pattern.
 
 # Disclaimer
-It's still work in progress, so use at your own risk!
+Use at your own risk. I strongly advise to create a separate folder, where you let the sorting magic happen.
