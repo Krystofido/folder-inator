@@ -12,7 +12,6 @@ import arguments
 # make folders have more extensive name than pattern
 # (not necessarily absolute path)
 # gui
-# add tqdm (or something else) for more visual progress
 # log warnings/errors into file instead of console
 
 
@@ -21,9 +20,9 @@ def main():
 
     amount_total_files = 0
     amount_moved_files = 0
-    amount_new_folders = 0
+    amount_new_folders = 0    
 
-    for file in Path(args.path).glob("*"):
+    for file in progress_spin(Path(args.path).glob("*")):
         amount_total_files += 1
 
         # Skipping folders if ignore_folders == true
@@ -63,14 +62,14 @@ def main():
             shutil.move(file, target)
             amount_moved_files += 1
         except Exception as e:
-            print(e)
+            print(f"\n{e}")
             continue
     
     if args.save_arguments:
         save_arguments(args)
 
-    print(f"Done: Moved {amount_moved_files} from {amount_total_files} available \
-          file{'s' if amount_moved_files != 1 else ''} and folder{'s' if amount_moved_files != 1 else ''}. Created {amount_new_folders} new folder{'s' if amount_new_folders != 1 else ''}.")
+    print(f"Done: Moved {amount_moved_files} from {amount_total_files} available file{'s' if amount_moved_files != 1 else ''} " +
+           f"and folder{'s' if amount_moved_files != 1 else ''}. Created {amount_new_folders} new folder{'s' if amount_new_folders != 1 else ''}.")
 
 # Move every file that matches the given regex expression to the "custom_regex_pattern" folder
 def regex_pattern_variant(arg, file):
@@ -95,7 +94,7 @@ def delimeter_variant(arg, file):
         delimeter_separated = list(str(file.stem))
     else:
         delimeter_separated = file.stem.split(arg.delimeter)
-    print(delimeter_separated)
+    #print(delimeter_separated)
 
     # Depending on the choice of either --occurence_at or the two arguments --start_at and/or --end_at, different naming process.
     file_base_name = None
@@ -112,8 +111,8 @@ def delimeter_variant(arg, file):
     else:
         file_base_name = arg.delimeter.join(delimeter_separated[arg.start_at:arg.end_at])
 
-    # Folder names can't end with dots (.) and are automatically removed by the OS. Thus if the file_base_name ends with dots they need to be stripped
-    file_base_name = file_base_name.rstrip(".")
+    # Folder names can't end with dots (.) or empty space ( ) and are automatically removed by the OS. Thus if the file_base_name ends with dots and space they need to be stripped
+    file_base_name = file_base_name.rstrip(". ")
 
     outdir = Path(arg.path) / file_base_name
 
@@ -171,6 +170,14 @@ def save_arguments(args):
                 if arg == "save_arguments":
                     continue
                 file.write(f' --{arg} {value}')
+
+def progress_spin(elements):
+    spinner = ['-', '\\', '|', '/']
+    for el in elements:
+        for char in spinner:
+            print(f'\r Work in Progress: {char}', end='', flush=True)
+        yield el
+    print('\r', end='', flush=True)  # Clear the spinner
 
 if __name__ == '__main__':
     main()
