@@ -63,7 +63,6 @@ def save_arguments(args):
     # Write everything in a file
     with open(file_path, 'w') as file:
         file.write(f'{command_prefix}')
-
         # Loop through the arguments and add them to the script
         for arg in vars(args):
             value = getattr(args, arg)

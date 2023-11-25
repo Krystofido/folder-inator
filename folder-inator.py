@@ -3,13 +3,10 @@ from pathlib import Path
 import os.path
 import shutil
 import re
-import sys
 import logging
 
 import arguments
 import tools
-#import tools.logger as logger
-
 
 
 ### Ideas
@@ -117,14 +114,12 @@ def delimeter_variant(arg, file):
                  "Please consider setting a lower --occurence_at.")
             outdir = None
             skip_file = True
-            return outdir, skip_file
-            
+            return outdir, skip_file      
     else:
         file_base_name = arg.delimeter.join(delimeter_separated[arg.start_at:arg.end_at])
 
     # Folder names can't end with dots (.) or empty space ( ) and are automatically removed by the OS. Thus if the file_base_name ends with dots and space they need to be stripped
-    file_base_name = file_base_name.rstrip(".")
-
+    file_base_name = file_base_name.rstrip(". ")
     outdir = Path(arg.path) / file_base_name
 
     # Skip file if there is only one matching the given pattern (and --ignore_singles is True)
