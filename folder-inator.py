@@ -4,18 +4,23 @@ import os.path
 import shutil
 import re
 import sys
+import logging
 
 import arguments
+
+
 
 ### Ideas
 # limit folder name length
 # make folders have more extensive name than pattern
 # (not necessarily absolute path)
 # gui
-# log warnings/errors into file instead of console
+# what if there is already a file with identical name in target folder?
 
 
 def main():
+    log_file, initial_line_count = set_up_logger('logs', 'folder-inator_messages.log')
+
     args = arguments.get_arguments()
 
     amount_total_files = 0
@@ -54,7 +59,10 @@ def main():
         # If I understand correctly, it's because of OS restrictions.
         # Note that you can still move the file manually to paths longer than 259 characters.
         if len(str(target)) > 259:
-            print(f"The target path:\n{target}\nis too long (has {len(str(target))} characters, only up to 259 possible)." +
+            #print(f"The target path:\n{target}\nis too long (has {len(str(target))} characters, only up to 259 possible)." +
+            #       "\nPlease choose a shorter file_base_name, move your files to a lower/shorter directory or move them manually.\n")
+            #continue
+            logging.info(f"The target path:\n{target}\nis too long (has {len(str(target))} characters, only up to 259 possible)." +
                    "\nPlease choose a shorter file_base_name, move your files to a lower/shorter directory or move them manually.\n")
             continue
 
@@ -62,14 +70,20 @@ def main():
             shutil.move(file, target)
             amount_moved_files += 1
         except Exception as e:
-            print(f"\n{e}")
+            #print(f"\n{e}")
+            logging.error(e)
             continue
     
     if args.save_arguments:
         save_arguments(args)
 
+    final_line_count = count_lines_in_file(log_file)
+    if  initial_line_count < final_line_count:
+        print(f"There have been written Logs to the file in {os.path.abspath(log_file)}.")
+
     print(f"Done: Moved {amount_moved_files} from {amount_total_files} available file{'s' if amount_moved_files != 1 else ''} " +
            f"and folder{'s' if amount_moved_files != 1 else ''}. Created {amount_new_folders} new folder{'s' if amount_new_folders != 1 else ''}.")
+
 
 # Move every file that matches the given regex expression to the "custom_regex_pattern" folder
 def regex_pattern_variant(arg, file):
@@ -178,6 +192,21 @@ def progress_spin(elements):
             print(f'\r Work in Progress: {char}', end='', flush=True)
         yield el
     print('\r', end='', flush=True)  # Clear the spinner
+
+# Count the number of lines in file
+def count_lines_in_file(file):
+    with open(file, 'r') as file:
+        line_count = sum(1 for line in file)
+    return line_count
+
+# Set up the logger
+def set_up_logger(log_directory, log_file_name):
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)   
+    log_file = os.path.join(log_directory, log_file_name)    
+    initial_line_count = count_lines_in_file(log_file)
+    logging.basicConfig(filename=log_file, level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+    return log_file, initial_line_count
 
 if __name__ == '__main__':
     main()
