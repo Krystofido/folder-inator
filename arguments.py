@@ -3,6 +3,7 @@ import external_code.smart_formatter as smart_formatter
 from datetime import datetime
 import os
 import sys
+import logging
 
 # Get the current date and time
 current_time = datetime.now()
@@ -14,6 +15,8 @@ day = current_time.day
 
 def get_arguments():
     # Create an ArgumentParser object
+
+    logging.info("AAAAAAAAAAAAAAAAYYYYYYYYYYYYYYYYYYYYY")
 
     text = """
     ---
@@ -70,7 +73,7 @@ def get_arguments():
         if not os.path.exists(args.path):
             raise Exception(f"The given path does not exist, please make sure it's correct. Your path: \n{args.path}")
     except Exception as e:
-        print(f"Error: {e}")
+        logging.error(f"Error: {e}")
         sys.exit(1)
     
     # Check if passed argument combination is legal
@@ -82,7 +85,6 @@ def get_arguments():
     not ((args.occurence_at is not None) ^ ((args.start_at is not None) or (args.end_at is not None))):
         parser.error("Arguments --occurence_at and (--start_at or --end_at) exclude each other.")     
 
-    #print(args)
     return args
 
 def str_to_bool(value):
@@ -94,5 +96,3 @@ def str_to_bool(value):
         return False
     else:
         raise argparse.ArgumentTypeError('Invalid boolean value: {}'.format(value))
-
-#get_arguments()
