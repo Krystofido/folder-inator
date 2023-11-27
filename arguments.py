@@ -16,8 +16,6 @@ day = current_time.day
 def get_arguments():
     # Create an ArgumentParser object
 
-    logging.info("AAAAAAAAAAAAAAAAYYYYYYYYYYYYYYYYYYYYY")
-
     text = """
     ---
     folder-inator v0
