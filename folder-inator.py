@@ -62,6 +62,14 @@ def main():
                    "\nPlease choose a shorter file_base_name, move your files to a lower/shorter directory or move them manually.\n")
             continue
 
+        # In case such file exists already, find a name-number combination, that does not exist yet
+        # this code piece should be before the length check, move when ready
+        counter = 1
+        path, extextension = os.path.splitext(target)
+        while os.path.exists(target):
+            target = f"{path}({counter}){extextension}"
+            counter += 1
+
         try:
             shutil.move(file, target)
             amount_moved_files += 1
