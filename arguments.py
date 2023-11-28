@@ -30,6 +30,8 @@ def get_arguments():
                                                   \nEITHER [--delimeter] OR [--regex_pattern]\
                                                   \nEITHER [--occurence_at] OR [--start_at and/or --end_at]')
     optional = parser.add_argument_group('optional named arguments')
+    optionalExcluding = parser.add_argument_group('optional named arguments, excluding each other: \
+                                                  \nEITHER [--clone_if_exists] OR [--skip_if_exists] OR [--overwrite_if_exists]')
 
     # Add an argument for the path
     #those actually should be changed from default to required, but for testing this is fine
@@ -62,6 +64,11 @@ def get_arguments():
     requiredExcluding.add_argument('--end_at', type=int, default=None, help='Define at which split element of the name to start. \nThe named element \
                                    is not included. \nExample: If you want the first 2 elements you need to define --end_at 2. \nOtherwise the \
                                    same counting rules as in --occurence_at.')
+    
+    # optional arguments excluding each other
+    optionalExcluding.add_argument('--clone_if_exists', type=str_to_bool, help='If identical file already exists, creates a copy of it. \nDefault behavior if none of the 3 options are chosen.')
+    optionalExcluding.add_argument('--skip_if_exists', type=str_to_bool, help='If identical file already exists, does not move it at all.')
+    optionalExcluding.add_argument('--overwrite_if_exists', type=str_to_bool, help='If identical file already exists, overwites of it.')
 
     # Parse the command-line arguments
     args = parser.parse_args()
@@ -81,8 +88,19 @@ def get_arguments():
 
     if (args.delimeter is not None) and\
     not ((args.occurence_at is not None) ^ ((args.start_at is not None) or (args.end_at is not None))):
-        parser.error("Arguments --occurence_at and (--start_at or --end_at) exclude each other.")     
+        parser.error("Arguments --occurence_at and (--start_at or --end_at) exclude each other.")
 
+    if_exists_actions = [args.clone_if_exists, args.skip_if_exists, args.overwrite_if_exists]
+    count_true = sum(1 for i in if_exists_actions if i is True)
+    count_false = sum(1 for i in if_exists_actions if i is False)
+    # TODO, a little test
+    #test = {action.dest: getattr(args, action.dest) for action in optionalExcluding._group_actions}
+    #required_values = list(test.values())
+    if count_true > 1 or (count_false > 0 and count_true < 1):
+        parser.error("Arguments --clone_if_exists, --skip_if_exists and overwrite_if_exists exclude each other, only 1 can be set True at the same time.\n" + 
+                     "You will also get this error if you only set some or all of the 3 options to False, you need to choose one to be True in this case.\n" + 
+                     "Default behavior if none of the options is set, is --clone_if_existing.")
+    
     return args
 
 def str_to_bool(value):

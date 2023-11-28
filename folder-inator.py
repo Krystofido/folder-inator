@@ -54,6 +54,19 @@ def main():
             amount_new_folders += 1
 
         target = outdir / file.name
+
+        # Rename/skip file or do nothing, depending on the choice of the x_if_exists option
+        if args.clone_if_exists or ((args.clone_if_exists is None) and (args.skip_if_exists is None) and (args.overwrite_if_exists is None)):
+            counter = 1
+            path, extextension = os.path.splitext(target)
+            while os.path.exists(target):
+                target = f"{path}({counter}){extextension}"
+                counter += 1
+        elif args.skip_if_exists:
+            continue
+        elif args.overwrite_if_exists:
+            pass # aka do not rename target which will result in overwriting the existing file in the folder to be moved in
+
         # The shutil.move() method (or any other file moving function in Python known to me) can't have a target-path () longer than 259 characters.
         # If I understand correctly, it's because of OS restrictions.
         # Note that you can still move the file manually to paths longer than 259 characters.
@@ -61,14 +74,6 @@ def main():
             logging.info(f"The target path:\n{target}\nis too long (has {len(str(target))} characters, only up to 259 possible)." +
                    "\nPlease choose a shorter file_base_name, move your files to a lower/shorter directory or move them manually.\n")
             continue
-
-        # In case such file exists already, find a name-number combination, that does not exist yet
-        # this code piece should be before the length check, move when ready
-        counter = 1
-        path, extextension = os.path.splitext(target)
-        while os.path.exists(target):
-            target = f"{path}({counter}){extextension}"
-            counter += 1
 
         try:
             shutil.move(file, target)
